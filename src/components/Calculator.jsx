@@ -1,14 +1,20 @@
 import React from 'react'
+import { useSelector, useDispatch } from 'react-redux';
+import { setCurrentValue } from '../features/calculator/calculator.Slice';
+
+
 
 const Calculator = () => {
+  const dispatch = useDispatch();
+  const currentValue = useSelector((state)=> state.calculator.currentValue)
   return (
     <div className="calculator">
-      <div id="display">0</div>
+      <div id="display"> {currentValue}   </div>
       <div>
         <button id='clear' className='clear'>AC</button>
         <button id='divide' className='divide'  >/</button>
         <button id='multiply' className='multiply'>x</button>
-        <button id='seven' className='seven' >7</button>
+        <button id='seven'  className='seven' >7</button>
         <button id='eight' className='eight'>8</button>
         <button id='nine'  className='nine' >9</button>
         <button id='subtract'  className='subtract' >-</button>
