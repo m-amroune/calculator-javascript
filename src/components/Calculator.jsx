@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentValue } from '../features/calculator/calculator.Slice';
+import { setCurrentValue, calculateResult, setOperation } from '../features/calculator/calculator.Slice';
 
 
 
@@ -8,7 +8,14 @@ const Calculator = () => {
   const dispatch = useDispatch();
   const currentValue = useSelector((state)=> state.calculator.currentValue);
   const handleClick = (value) => {
-  dispatch(setCurrentValue(currentValue + value));
+    if(["+","-", "/", "x"].includes(value)) {
+      dispatch(setOperation(value));
+    } else if(value === '=') {
+      dispatch(calculateResult())
+    } else{
+      dispatch(setCurrentValue(currentValue + value));
+    }
+  
 };
 
   return (
