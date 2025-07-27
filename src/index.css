@@ -31,13 +31,15 @@ body {
 }
 
 button{
-  width: 3rem;
-  height: 2rem;
+  width: 4rem;
+  height: 3rem;
+  border: 1px solid black;
 }
 
 .clear{
   grid-area: clear;
-  width: 6rem;
+  width: 8rem;
+  background-color: red;
 }
 .divide{
   grid-area: divide;
@@ -45,7 +47,6 @@ button{
 .multiply{
   grid-area: multiply;
 }
-
 
 .seven{
   grid-area: seven;
@@ -82,15 +83,14 @@ button{
 }
 .equals{
   grid-area: equals;
+  height: 6rem;
+  background-color: blue;
 }
 .zero{
   grid-area: zero;
-  width: 6rem;
+  width: 8rem;
 }
 .decimal{
   grid-area: decimal;
 }
-.equals{
-  grid-area: equals;
-  height: 4rem;
-}
+
