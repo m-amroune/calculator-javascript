@@ -6,28 +6,32 @@ import { setCurrentValue } from '../features/calculator/calculator.Slice';
 
 const Calculator = () => {
   const dispatch = useDispatch();
-  const currentValue = useSelector((state)=> state.calculator.currentValue)
+  const currentValue = useSelector((state)=> state.calculator.currentValue);
+  const handleClick = (value) => {
+  dispatch(setCurrentValue(currentValue + value));
+};
+
   return (
     <div className="calculator">
       <div id="display"> {currentValue}   </div>
       <div>
-        <button id='clear' className='clear'>AC</button>
-        <button id='divide' className='divide'  >/</button>
-        <button id='multiply' className='multiply'>x</button>
-        <button id='seven'  className='seven' >7</button>
-        <button id='eight' className='eight'>8</button>
-        <button id='nine'  className='nine' >9</button>
-        <button id='subtract'  className='subtract' >-</button>
-        <button id='four' className='four'  >4</button>
-        <button id='five' className='five' >5</button>
-        <button id='six'  className='six' >6</button>
-        <button id='add' className='add'  >+</button>
-        <button id='one' className='one' >1</button>
-        <button id='two' className='two' >2</button>
-        <button id='three' className='three' >3</button>
-        <button id='zero' className='zero' >0</button>
-        <button id='decimal' className='decimal' >.</button>
-        <button id='equals' className='equals'>=</button>
+        <button id='clear' className='clear' onClick={() => handleClick("AC")}>AC</button>
+        <button id='divide' className='divide' onClick={() => handleClick("/")}  >/</button>
+        <button id='multiply' className='multiply' onClick={() => handleClick("x")}>x</button>
+        <button id='seven'  className='seven' onClick={() => handleClick("7")} >7</button>
+        <button id='eight' className='eight' onClick={() => handleClick("8")}>8</button>
+        <button id='nine'  className='nine' onClick={() => handleClick("9")} >9</button>
+        <button id='subtract'  className='subtract' onClick={() => handleClick("-")} >-</button>
+        <button id='four' className='four' onClick={() => handleClick("4")}  >4</button>
+        <button id='five' className='five' onClick={() => handleClick("5")} >5</button>
+        <button id='six'  className='six' onClick={() => handleClick("6")} >6</button>
+        <button id='add' className='add' onClick={() => handleClick("+")}  >+</button>
+        <button id='one' className='one' onClick={() => handleClick("1")} >1</button>
+        <button id='two' className='two' onClick={() => handleClick("2")} >2</button>
+        <button id='three' className='three' onClick={() => handleClick("3")} >3</button>
+        <button id='zero' className='zero' onClick={() => handleClick("0")} >0</button>
+        <button id='decimal' className='decimal' onClick={() => handleClick(".")} >.</button>
+        <button id='equals' className='equals' onClick={() => handleClick("=")}>=</button>
       </div>
     </div>
   )
