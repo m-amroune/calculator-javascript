@@ -39,12 +39,18 @@ const calculatorSlice = createSlice({
                    
         }
          state.firstValue = '';
-                    state.operation = '';
-            }
+        state.operation = '';
+            },
+            // reset value with AC button
+        clearAll: (state) => {
+            state.currentValue = "0"; // reset to "0"
+            state.firstValue = ""; // delete last operation
+            state.operation = ""; // delete current openration
+        }
     }
 })
 
 // setCurrentValue action is extacted for use in components
-export const {setCurrentValue, setOperation, calculateResult} = calculatorSlice.actions;
+export const {setCurrentValue, setOperation, calculateResult, clearAll} = calculatorSlice.actions;
 // Export reducer for the store
 export default calculatorSlice.reducer

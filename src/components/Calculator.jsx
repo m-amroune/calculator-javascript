@@ -1,18 +1,22 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentValue, calculateResult, setOperation } from '../features/calculator/calculator.Slice';
+import { setCurrentValue, calculateResult, setOperation, clearAll } from '../features/calculator/calculator.Slice';
 
 
 
 const Calculator = () => {
-  const dispatch = useDispatch();
+  
+  const dispatch = useDispatch(); // function that sends an action to the store
   const currentValue = useSelector((state)=> state.calculator.currentValue);
   const handleClick = (value) => {
     if(["+","-", "/", "x"].includes(value)) {
       dispatch(setOperation(value));
     } else if(value === '=') {
       dispatch(calculateResult())
-    } else{
+    }else if(value === "AC"){
+       dispatch(clearAll());
+    }
+     else{
       dispatch(setCurrentValue(currentValue + value));
     }
   
