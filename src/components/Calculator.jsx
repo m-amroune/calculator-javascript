@@ -4,10 +4,11 @@ import { setCurrentValue, calculateResult, setOperation, clearAll } from '../fea
 
 
 
+
 const Calculator = () => {
   
   const dispatch = useDispatch(); // function that sends an action to the store
-  const currentValue = useSelector((state)=> state.calculator.currentValue);
+  const currentValue = useSelector((state)=> state.calculator.currentValue); 
   const handleClick = (value) => {
     if(["+","-", "/", "x"].includes(value)) {
       dispatch(setOperation(value));
@@ -15,6 +16,8 @@ const Calculator = () => {
       dispatch(calculateResult())
     }else if(value === "AC"){
        dispatch(clearAll());
+    } else if(currentValue === "0" && value === "0"){ // multuple zeros ignored at the beginning
+      return; 
     }
      else{
       dispatch(setCurrentValue(currentValue + value));
