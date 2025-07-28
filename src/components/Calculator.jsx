@@ -20,7 +20,7 @@ const Calculator = () => {
       return; 
     }
      else{
-      dispatch(setCurrentValue(currentValue + value));
+      dispatch(setCurrentValue(value));
     }
   
 };
