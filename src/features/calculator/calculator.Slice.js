@@ -14,13 +14,13 @@ const calculatorSlice = createSlice({
         setCurrentValue: (state, action) =>{
               const val = action.payload;
 
-  // Empêche d’ajouter plusieurs zéros initiaux
+  // prevent multiple zero at the begin
   if (state.currentValue === "0" && val === "0") return;
 
-  // Empêche plusieurs décimales
+  // prevent multiple decimals
   if (val === "." && state.currentValue.includes(".")) return;
 
-  // Si "0" au départ, on remplace
+  // if begin by "0" => replace
   if (state.currentValue === "0") {
     state.currentValue = val === "." ? "0." : val;
   } else {
@@ -33,6 +33,8 @@ const calculatorSlice = createSlice({
 
             // ignore redundant operator after "-"
             if (state.currentValue === "-" && newOperation !== "-") {
+                   state.operation = newOperation;
+                    state.currentValue = ''; // empty input for enter the number
                 return; // keep the "-" as a negative sign
             }
 
@@ -47,6 +49,24 @@ const calculatorSlice = createSlice({
                 }
                 return;
             }
+
+            // if character is already an operator
+const lastCharacter = state.currentValue.slice(-1);
+const operators = ["+", "-", "/", "x"];
+
+// Multiples operators
+if (operators.includes(lastCharacter)) {
+  //  if the new operator is '-' and the last is not '-'
+  if (newOperation === "-" && lastCharacter !== "-") {
+    state.currentValue += newOperation;
+    return;
+  }
+
+  // else replace the last operator by the new
+  state.currentValue = state.currentValue.slice(0, -1) + newOperation;
+  return;
+}
+
 
             state.firstValue = state.currentValue; // keep first value
             state.operation = newOperation; // store operation type
