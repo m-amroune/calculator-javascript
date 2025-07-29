@@ -1,109 +1,144 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// State initial with current value = 0
+// Initial state with current value and full calculation chain
 const initialState = {
-    currentValue: "0", 
-}
+  currentValue: "0",
+  calculationChain: "",
+};
 
-// Creation Redux slice 
 const calculatorSlice = createSlice({
-    name: 'calculator',
-    initialState,
-    // objects with functions that modify the state
-    reducers:{
-        setCurrentValue: (state, action) =>{
-              const val = action.payload;
+  name: 'calculator',
+  initialState,
+  reducers: {
+    // add a digit or decimal to the current input and chain
+    setCurrentValue: (state, action) => {
+      const value = action.payload;
 
-  // prevent multiple zero at the begin
-  if (state.currentValue === "0" && val === "0") return;
+      // Ignore multiple leading zeros
+      if (state.currentValue === "0" && value === "0") return;
 
-  // prevent multiple decimals
-  if (val === "." && state.currentValue.includes(".")) return;
+      // Block multiple decimal points in the same number
+      if (value === "." && state.currentValue.includes(".")) return;
 
-  // if begin by "0" => replace
-  if (state.currentValue === "0") {
-    state.currentValue = val === "." ? "0." : val;
-  } else {
-    state.currentValue += val;
-  }
+      // If the current value is 0, replace it
+      if (state.currentValue === "0") {
+        state.currentValue = value === "." ? "0." : value;
+        state.calculationChain = value === "." ? "0." : value;
+      } else {
+        // Otherwise, append the new value
+        state.currentValue += value;
+        state.calculationChain += value;
+      }
+    },
+    // Add or replace an operator in the calculation chain
+    setOperation: (state, action) => {
+      const newOperator = action.payload;
+      const operatorSymbol = newOperator === "x" ? "*" : newOperator;
+      const operatorList = ["+", "-", "*", "/"];
+      const lastCharacter = state.calculationChain.slice(-1);
+      const secondLastCharacter = state.calculationChain.slice(-2, -1);
 
-        },
-        setOperation: (state, action) => {
-            const newOperation = action.payload;
-
-            // ignore redundant operator after "-"
-            if (state.currentValue === "-" && newOperation !== "-") {
-                   state.operation = newOperation;
-                    state.currentValue = ''; // empty input for enter the number
-                return; // keep the "-" as a negative sign
-            }
-
-            // multiple operators detected
-            if (state.operation && state.currentValue === "") {
-                if (newOperation === "-") {
-                    // if "-" begin negatif number
-                    state.currentValue = "-";
-                } else {
-                    // with other operator => replace the last one
-                    state.operation = newOperation;
-                }
-                return;
-            }
-
-            // if character is already an operator
-const lastCharacter = state.currentValue.slice(-1);
-const operators = ["+", "-", "/", "x"];
-
-// Multiples operators
-if (operators.includes(lastCharacter)) {
-  //  if the new operator is '-' and the last is not '-'
-  if (newOperation === "-" && lastCharacter !== "-") {
-    state.currentValue += newOperation;
-    return;
-  }
-
-  // else replace the last operator by the new
-  state.currentValue = state.currentValue.slice(0, -1) + newOperation;
-  return;
-}
-
-
-            state.firstValue = state.currentValue; // keep first value
-            state.operation = newOperation; // store operation type
-            state.currentValue = ''; // reset for entering second number
-        },
-        calculateResult: (state) => {
-            const num1 = Number(state.firstValue);
-            const num2 = Number(state.currentValue);
-            switch (state.operation) {
-                case '+':
-                    state.currentValue = String(num1 + num2);
-                    break;
-                case '-':
-                    state.currentValue = String(num1 - num2);
-                    break;
-                case 'x':
-                    state.currentValue = String(num1 * num2);
-                    break;
-                case '/':
-                    state.currentValue = String(num1 / num2);
-                    break;
-                default:
-                    // no valid operation
-            }
-            state.firstValue = '';
-            state.operation = '';
-        },
-        // reset value with AC button
-        clearAll: (state) => {
-            state.currentValue = "0"; // reset to "0"
-            state.firstValue = ""; // delete last operation
-            state.operation = ""; // delete current operation
+      // If the chain is empty, only allow a starting negative sign
+      if (state.calculationChain.length === 0) {
+        if (operatorSymbol === "-") {
+          state.calculationChain = "-";
+          state.currentValue = "-";
         }
-    }
-})
+        return;
+      }
 
-// setCurrentValue action is extacted for use in components
+      // If the last character is an operator
+      if (operatorList.includes(lastCharacter)) {
+        // If the new operator is "-" and not preceded by another operator, treat it as a negative sign
+        if (operatorSymbol === "-" && !operatorList.includes(secondLastCharacter)) {
+          state.calculationChain += "-";
+          state.currentValue = "-";
+          return;
+        }
+
+        // Replace multiple consecutive operators with the last one
+        let position = state.calculationChain.length - 1;
+        while (position >= 0 && operatorList.includes(state.calculationChain[position])) {
+          position--;
+        }
+        state.calculationChain = state.calculationChain.slice(0, position + 1) + operatorSymbol;
+        state.currentValue = "";
+        return;
+      }
+
+      //  Default case: add the operator normally 
+      state.calculationChain += operatorSymbol;
+      state.currentValue = "";
+    },
+    // Evaluate the full expression and updates the result
+    calculateResult: (state) => {
+      const tokenList = state.calculationChain.match(/(\d+\.?\d*|[+\-*/])/g);
+
+      if (!tokenList || tokenList.length < 3) {
+        state.currentValue = "Error";
+        return;
+      }
+
+      // Detect and combine negative numbers that appear after an operator
+    // For example, convert the sequence "*", "-", "5" into "*", "-5" 
+      for (let i = 0; i < tokenList.length - 2; i++) {
+        const [operator, sign, number] = [tokenList[i], tokenList[i + 1], tokenList[i + 2]];
+        const isMathOperator = ["*", "/", "+"].includes(operator);
+        if (isMathOperator && sign === "-" && !isNaN(number)) {
+          tokenList.splice(i + 1, 2, "-" + number);
+        }
+      }
+
+      const applyOperation = (leftOperand, rightOperand, operator) => {
+        const a = parseFloat(leftOperand);
+        const b = parseFloat(rightOperand);
+        if (isNaN(a) || isNaN(b)) return "Error";
+
+        switch (operator) {
+          case "+": return a + b;
+          case "-": return a - b;
+          case "*": return a * b;
+          case "/": return b !== 0 ? a / b : "Error";
+          default: return "Error";
+        }
+      };
+
+      // Respect operator precedence :  first "*/"" and then "+-""
+      const operatorPrecedenceGroups = [["*", "/"], ["+", "-"]];
+
+      for (const operators of operatorPrecedenceGroups) {
+        let index = 0;
+        while (index < tokenList.length) {
+          const currentOperator = tokenList[index];
+          if (operators.includes(currentOperator)) {
+            const result = applyOperation(tokenList[index - 1], tokenList[index + 1], currentOperator);
+            if (result === "Error") {
+              state.currentValue = "Error";
+              return;
+            }
+            //  Replace the pattern [left Operand, operator, right Operand] with the result
+            tokenList.splice(index - 1, 3, result.toString());
+            index--; // adjust index after splice
+          } else {
+            index++;
+          }
+        }
+      }
+
+      // Final result rounded to 4 decimal places
+      const finalResult = parseFloat(tokenList[0]);
+      state.currentValue = (Math.round(finalResult * 10000) / 10000).toString();
+      state.calculationChain = state.currentValue;
+    },
+    // Resets the calculator to its initial state
+    clearAll: (state) => {
+      state.currentValue = "0";
+      state.calculationChain = "";
+    }
+  }
+});
+
 export const { setCurrentValue, setOperation, calculateResult, clearAll } = calculatorSlice.actions;
-// Export reducer for the store
 export default calculatorSlice.reducer;
+
+
