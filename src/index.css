@@ -9,18 +9,25 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  width: 100vw;
   margin: 0;
   overflow: hidden;
+  background-color: #c2c2d6;
 }
 
 
 .calculator{
-  width: 200px;
-  height: 500px;
+  width: 340px;
+  max-width: 100%;
+  height: auto;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
 }
 
 
-.calculator > div:nth-child(2){
+
+.keypad{
   display: grid;
   grid-template-areas:
   "clear clear divide multiply"
@@ -29,18 +36,39 @@ body {
   "one two three equals"
   "zero zero decimal equals ";
   grid-template-columns: repeat(4,1fr);
+  grid-template-rows: repeat(5, 1fr); 
+ 
 }
 
+#display {
+  height: 3.5rem;
+  text-align: right;
+  padding: 0.5rem;
+  font-size: 2rem;
+  border: 1px solid #ccc;
+  background-color: black;
+  color: #fff;
+  overflow: hidden;
+}
+
+
 button{
-  width: 4rem;
-  height: 3rem;
   border: 1px solid black;
+  color: #fff;
+}
+
+.digit{
+  background-color: #4d4d4d;;
+}
+
+.operator{
+  background-color: rgb(102, 102, 102);;
 }
 
 .clear{
   grid-area: clear;
-  width: 8rem;
-  background-color: red;
+  grid-column: span 2;
+  background-color: rgb(172, 57, 57);
 }
 .divide{
   grid-area: divide;
@@ -85,11 +113,11 @@ button{
 .equals{
   grid-area: equals;
   height: 6rem;
-  background-color: blue;
+  background-color: rgb(0, 68, 102);
 }
 .zero{
   grid-area: zero;
-  width: 8rem;
+  grid-column: span 2;
 }
 .decimal{
   grid-area: decimal;
